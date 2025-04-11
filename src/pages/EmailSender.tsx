@@ -1,19 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { Send, User, Users, Copy, CheckCircle, Search, Filter, Mail, FileText, Building, Briefcase } from 'lucide-react';
+import { Send, Mail, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { useCandidates } from '@/hooks/useCandidates';
 import { useEmailTemplates } from '@/hooks/useEmailTemplates';
 import { useCompanies } from '@/hooks/useCompanies';
@@ -23,8 +13,9 @@ import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { EmailTemplateManager } from '@/components/EmailTemplateManager';
 import { Candidate } from '@/data/mockCandidates';
-import { Company } from '@/data/mockCompanies';
 import { JobDetail } from '@/data/mockJobDetails';
+import CandidateList from '@/components/email/CandidateList';
+import EmailComposer from '@/components/email/EmailComposer';
 
 const EmailSender = () => {
   const { candidates, loading: candidatesLoading } = useCandidates();
@@ -225,37 +216,7 @@ const EmailSender = () => {
       });
     }, 2000);
   };
-  
-  const renderCandidateCard = (candidate: Candidate) => {
-    const isSelected = selectedCandidates.includes(candidate.id);
-    
-    return (
-      <Card 
-        key={candidate.id} 
-        className={`cursor-pointer transition-all ${isSelected ? 'border-primary ring-1 ring-primary' : ''}`}
-        onClick={() => handleSelectCandidate(candidate.id)}
-      >
-        <CardContent className="p-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mr-3">
-              <User className="h-4 w-4" />
-            </div>
-            <div>
-              <div className="font-medium">{candidate.name}</div>
-              <div className="text-sm text-gray-500">{candidate.email}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={candidate.status === "Tiềm năng" ? "default" : "secondary"}>
-              {candidate.status}
-            </Badge>
-            <Checkbox checked={isSelected} />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-  
+
   if (loading) {
     return (
       <Layout>
@@ -293,69 +254,16 @@ const EmailSender = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-medium">Ứng viên</h2>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleSelectAllCandidates}
-                  >
-                    {selectedCandidates.length === filteredCandidates.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-                  </Button>
-                </div>
-                
-                <div className="space-y-4 mb-4">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input 
-                        placeholder="Tìm theo tên, email..." 
-                        className="pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <Select 
-                      value={statusFilter} 
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger className="w-[160px]">
-                        <Filter className="h-4 w-4 mr-2" />
-                        <SelectValue placeholder="Trạng thái" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tất cả</SelectItem>
-                        <SelectItem value="potential">Tiềm năng</SelectItem>
-                        <SelectItem value="not_suitable">Không phù hợp</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-                  {filteredCandidates.length > 0 ? (
-                    filteredCandidates.map(renderCandidateCard)
-                  ) : (
-                    <div className="text-center py-8">
-                      <User className="h-12 w-12 mx-auto text-gray-300" />
-                      <p className="mt-2 text-gray-500">Không tìm thấy ứng viên phù hợp</p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Đã chọn {selectedCandidates.length} / {filteredCandidates.length}
-                  </div>
-                  <div className="flex items-center text-primary text-sm">
-                    <Users className="h-4 w-4 mr-1" />
-                    <span>{selectedCandidates.length} người nhận</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <CandidateList
+              candidates={filteredCandidates}
+              selectedCandidates={selectedCandidates}
+              searchQuery={searchQuery}
+              statusFilter={statusFilter}
+              onSelectCandidate={handleSelectCandidate}
+              onSelectAllCandidates={handleSelectAllCandidates}
+              onSearchChange={setSearchQuery}
+              onStatusFilterChange={setStatusFilter}
+            />
           </div>
           
           <div className="lg:col-span-2 space-y-6">
@@ -374,122 +282,24 @@ const EmailSender = () => {
                   </TabsList>
                   
                   <TabsContent value="compose" className="mt-0">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="template">Mẫu email</Label>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-xs text-muted-foreground"
-                            disabled={!selectedTemplateId}
-                            onClick={() => handleSelectTemplate('')}
-                          >
-                            Xóa mẫu
-                          </Button>
-                        </div>
-                        <Select
-                          value={selectedTemplateId}
-                          onValueChange={handleSelectTemplate}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn mẫu email" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {templates.map(template => (
-                              <SelectItem key={template.id} value={template.id.toString()}>
-                                {template.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="company">Công ty</Label>
-                        <Select 
-                          value={selectedCompanyId} 
-                          onValueChange={handleCompanyChange}
-                        >
-                          <SelectTrigger>
-                            <Building className="h-4 w-4 mr-2" />
-                            <SelectValue placeholder="Chọn công ty" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Tất cả công ty</SelectItem>
-                            {companies.map((company) => (
-                              <SelectItem key={company.id} value={company.id.toString()}>
-                                {company.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="position">Vị trí ứng tuyển</Label>
-                        <Select 
-                          value={position} 
-                          onValueChange={handlePositionChange}
-                          disabled={filteredJobs.length === 0}
-                        >
-                          <SelectTrigger>
-                            <Briefcase className="h-4 w-4 mr-2" />
-                            <SelectValue placeholder={filteredJobs.length === 0 ? "Chọn công ty trước" : "Chọn vị trí"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {filteredJobs.map(job => (
-                              <SelectItem key={job.id} value={job.title}>
-                                {job.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">Tiêu đề</Label>
-                        <Input 
-                          id="subject" 
-                          placeholder="Tiêu đề email"
-                          value={subject}
-                          onChange={(e) => setSubject(e.target.value)}
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="body">Nội dung</Label>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-xs flex items-center gap-1"
-                            onClick={handleCopyToClipboard}
-                          >
-                            <Copy className="h-3 w-3" />
-                            <span>Sao chép</span>
-                          </Button>
-                        </div>
-                        <Textarea 
-                          id="body" 
-                          placeholder="Nội dung email"
-                          className="min-h-[250px]"
-                          value={body}
-                          onChange={(e) => setBody(e.target.value)}
-                        />
-                      </div>
-                      
-                      <div className="pt-4 border-t">
-                        <div className="bg-slate-50 p-3 rounded-md mb-4">
-                          <p className="text-sm font-medium mb-1">Biến có thể sử dụng:</p>
-                          <div className="flex flex-wrap gap-2">
-                            <Badge variant="outline">{'{Tên}'}</Badge>
-                            <Badge variant="outline">{'{Vị trí ứng tuyển}'}</Badge>
-                            <Badge variant="outline">{'{Công ty}'}</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <EmailComposer
+                      templates={templates}
+                      companies={companies}
+                      filteredJobs={filteredJobs}
+                      candidates={candidates}
+                      selectedCandidates={selectedCandidates}
+                      selectedTemplateId={selectedTemplateId}
+                      subject={subject}
+                      body={body}
+                      selectedCompanyId={selectedCompanyId}
+                      position={position}
+                      onSelectTemplate={handleSelectTemplate}
+                      onCompanyChange={handleCompanyChange}
+                      onPositionChange={handlePositionChange}
+                      onSubjectChange={setSubject}
+                      onBodyChange={setBody}
+                      onCopyToClipboard={handleCopyToClipboard}
+                    />
                   </TabsContent>
                   
                   <TabsContent value="templates" className="mt-0">
@@ -504,18 +314,6 @@ const EmailSender = () => {
                 </Tabs>
               </CardContent>
             </Card>
-            
-            {selectedCandidates.length === 1 && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex items-center text-green-800 mb-2">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  <span className="font-medium">Xem trước email</span>
-                </div>
-                <p className="text-sm text-green-800">
-                  Email sẽ được gửi tới {candidates.find(c => c.id === selectedCandidates[0])?.name} với nội dung đã được điều chỉnh phù hợp.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
