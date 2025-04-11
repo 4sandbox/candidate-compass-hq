@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import UploadCV from "./pages/UploadCV";
 import CandidateList from "./pages/CandidateList";
 import EmailSender from "./pages/EmailSender";
+import CompanyManagement from "./pages/CompanyManagement";
+import JobDetailManagement from "./pages/JobDetailManagement";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "next-themes";
 
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/upload" element={<UploadCV />} />
             <Route path="/candidates" element={<CandidateList />} />
             <Route path="/emails" element={<EmailSender />} />
+            <Route path="/companies" element={<CompanyManagement />} />
+            <Route path="/jobs" element={<JobDetailManagement />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

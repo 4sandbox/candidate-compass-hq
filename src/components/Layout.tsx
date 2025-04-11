@@ -9,7 +9,9 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  Building,
+  Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +28,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Upload CV', href: '/upload', icon: Upload },
     { name: 'Ứng viên', href: '/candidates', icon: Users },
     { name: 'Email', href: '/emails', icon: Mail },
+    { name: 'Công ty', href: '/companies', icon: Building },
+    { name: 'Tin tuyển dụng', href: '/jobs', icon: Briefcase },
   ];
 
   const NavItem = ({ item }: { item: typeof navigation[0] }) => {
