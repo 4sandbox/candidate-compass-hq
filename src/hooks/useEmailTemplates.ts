@@ -37,10 +37,56 @@ export const useEmailTemplates = () => {
     return { subject, body };
   };
 
+  const createTemplate = async (templateData: Omit<EmailTemplate, 'id'>): Promise<EmailTemplate> => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const newId = templates.length > 0 
+      ? Math.max(...templates.map(t => t.id)) + 1 
+      : 1;
+      
+    const newTemplate: EmailTemplate = {
+      id: newId,
+      ...templateData
+    };
+    
+    setTemplates(prevTemplates => [...prevTemplates, newTemplate]);
+    return newTemplate;
+  };
+
+  const updateTemplate = async (id: number, templateData: Omit<EmailTemplate, 'id'>): Promise<EmailTemplate | undefined> => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const updatedTemplate = { id, ...templateData };
+    
+    setTemplates(prevTemplates => 
+      prevTemplates.map(template => 
+        template.id === id ? updatedTemplate : template
+      )
+    );
+    
+    return updatedTemplate;
+  };
+
+  const deleteTemplate = async (id: number): Promise<boolean> => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setTemplates(prevTemplates => 
+      prevTemplates.filter(template => template.id !== id)
+    );
+    
+    return true;
+  };
+
   return {
     templates,
     loading,
     error,
-    renderTemplate
+    renderTemplate,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate
   };
 };
