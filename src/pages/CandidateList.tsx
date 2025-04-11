@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Filter, Search, User, X, AlignLeft } from 'lucide-react';
@@ -9,11 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CandidateStatus, useCandidates } from '@/hooks/useCandidates';
+import { useCandidates } from '@/hooks/useCandidates';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import SkillBadge from '@/components/SkillBadge';
+
+type CandidateStatus = 'Tất cả' | 'Tiềm năng' | 'Không phù hợp';
 
 const CandidateList = () => {
   const { 
