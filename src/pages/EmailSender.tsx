@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Send, User, Users, Copy, CheckCircle, Search, Filter, Mail, FileText, Building, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,14 +54,12 @@ const EmailSender = () => {
   
   const loading = candidatesLoading || templatesLoading || companiesLoading || jobsLoading;
   
-  // Update available jobs when company changes
   useEffect(() => {
     if (selectedCompanyId) {
       const companyId = parseInt(selectedCompanyId);
       const jobs = jobDetails.filter(job => job.companyId === companyId);
       setFilteredJobs(jobs);
       
-      // Reset position if not valid for this company
       const isCurrentPositionValid = jobs.some(job => job.title === position);
       if (!isCurrentPositionValid) {
         setPosition('');
@@ -73,7 +70,6 @@ const EmailSender = () => {
     }
   }, [selectedCompanyId, jobDetails]);
   
-  // Filter candidates based on search query and status
   const filteredCandidates = candidates.filter(candidate => {
     const matchesSearch = candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          candidate.email.toLowerCase().includes(searchQuery.toLowerCase());
@@ -93,12 +89,15 @@ const EmailSender = () => {
     const template = templates.find(t => t.id.toString() === templateId);
     if (!template) return;
     
-    // If there's a selected candidate, use their name for preview
     const candidateName = selectedCandidates.length === 1
       ? candidates.find(c => c.id === selectedCandidates[0])?.name || '{Tên}'
       : '{Tên}';
     
-    const rendered = renderTemplate(template, candidateName, position);
+    const companyName = selectedCompanyId 
+      ? companies.find(c => c.id.toString() === selectedCompanyId)?.name 
+      : undefined;
+    
+    const rendered = renderTemplate(template, candidateName, position, companyName);
     setSubject(rendered.subject);
     setBody(rendered.body);
   };
@@ -110,12 +109,15 @@ const EmailSender = () => {
     const template = templates.find(t => t.id === templateId);
     if (!template) return;
     
-    // If there's a selected candidate, use their name for preview
     const candidateName = selectedCandidates.length === 1
       ? candidates.find(c => c.id === selectedCandidates[0])?.name || '{Tên}'
       : '{Tên}';
     
-    const rendered = renderTemplate(template, candidateName, position);
+    const companyName = selectedCompanyId 
+      ? companies.find(c => c.id.toString() === selectedCompanyId)?.name 
+      : undefined;
+    
+    const rendered = renderTemplate(template, candidateName, position, companyName);
     setSubject(rendered.subject);
     setBody(rendered.body);
   };
@@ -144,22 +146,24 @@ const EmailSender = () => {
     setSelectedCompanyId(companyId);
   };
   
-  // Update template preview when selected candidate changes and a template is selected
   useEffect(() => {
     if (selectedTemplateId && templates.length > 0) {
       const template = templates.find(t => t.id.toString() === selectedTemplateId);
       if (!template) return;
       
-      // If there's a selected candidate, use their name for preview
       const candidateName = selectedCandidates.length === 1
         ? candidates.find(c => c.id === selectedCandidates[0])?.name || '{Tên}'
         : '{Tên}';
       
-      const rendered = renderTemplate(template, candidateName, position);
+      const companyName = selectedCompanyId 
+        ? companies.find(c => c.id.toString() === selectedCompanyId)?.name 
+        : undefined;
+        
+      const rendered = renderTemplate(template, candidateName, position, companyName);
       setSubject(rendered.subject);
       setBody(rendered.body);
     }
-  }, [selectedCandidates, position]);
+  }, [selectedCandidates, position, selectedCompanyId]);
   
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(body);
@@ -177,12 +181,15 @@ const EmailSender = () => {
       const template = templates.find(t => t.id.toString() === selectedTemplateId);
       if (!template) return;
       
-      // If there's a selected candidate, use their name for preview
       const candidateName = selectedCandidates.length === 1
         ? candidates.find(c => c.id === selectedCandidates[0])?.name || '{Tên}'
         : '{Tên}';
       
-      const rendered = renderTemplate(template, candidateName, value);
+      const companyName = selectedCompanyId 
+        ? companies.find(c => c.id.toString() === selectedCompanyId)?.name 
+        : undefined;
+        
+      const rendered = renderTemplate(template, candidateName, value, companyName);
       setSubject(rendered.subject);
       setBody(rendered.body);
     }
@@ -209,7 +216,6 @@ const EmailSender = () => {
     
     setIsSending(true);
     
-    // Simulate sending delay
     setTimeout(() => {
       setIsSending(false);
       
@@ -286,7 +292,6 @@ const EmailSender = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column - Candidate selection */}
           <div className="lg:col-span-1 space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -353,7 +358,6 @@ const EmailSender = () => {
             </Card>
           </div>
           
-          {/* Right column - Email composition */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardContent className="p-6">
@@ -401,7 +405,6 @@ const EmailSender = () => {
                         </Select>
                       </div>
                       
-                      {/* Company Filter */}
                       <div className="space-y-2">
                         <Label htmlFor="company">Công ty</Label>
                         <Select 
@@ -413,7 +416,7 @@ const EmailSender = () => {
                             <SelectValue placeholder="Chọn công ty" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Tất cả công ty</SelectItem>
+                            <SelectItem value="none">Tất cả công ty</SelectItem>
                             {companies.map((company) => (
                               <SelectItem key={company.id} value={company.id.toString()}>
                                 {company.name}
@@ -482,6 +485,7 @@ const EmailSender = () => {
                           <div className="flex flex-wrap gap-2">
                             <Badge variant="outline">{'{Tên}'}</Badge>
                             <Badge variant="outline">{'{Vị trí ứng tuyển}'}</Badge>
+                            <Badge variant="outline">{'{Công ty}'}</Badge>
                           </div>
                         </div>
                       </div>

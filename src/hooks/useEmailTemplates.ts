@@ -38,6 +38,10 @@ export const useEmailTemplates = () => {
     if (companyName) {
       subject = subject.replace(/{Công ty}/g, companyName);
       body = body.replace(/{Công ty}/g, companyName);
+    } else {
+      // If no company name is provided, replace with a placeholder
+      subject = subject.replace(/{Công ty}/g, 'Công ty');
+      body = body.replace(/{Công ty}/g, 'Công ty');
     }
       
     return { subject, body };
