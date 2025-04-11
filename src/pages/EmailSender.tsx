@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Send, User, Users, Copy, CheckCircle, Search, Filter, Mail, FileText } from 'lucide-react';
+import { Send, User, Users, Copy, CheckCircle, Search, Filter, Mail, FileText, Building, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,14 +10,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useCandidates } from '@/hooks/useCandidates';
 import { useEmailTemplates } from '@/hooks/useEmailTemplates';
 import { useCompanies } from '@/hooks/useCompanies';
+import { useJobDetails } from '@/hooks/useJobDetails';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { EmailTemplateManager } from '@/components/EmailTemplateManager';
 import { Candidate } from '@/data/mockCandidates';
+import { Company } from '@/data/mockCompanies';
+import { JobDetail } from '@/data/mockJobDetails';
 
 const EmailSender = () => {
   const { candidates, loading: candidatesLoading } = useCandidates();
@@ -30,19 +38,40 @@ const EmailSender = () => {
     deleteTemplate
   } = useEmailTemplates();
   const { companies, loading: companiesLoading } = useCompanies();
+  const { jobDetails, loading: jobsLoading } = useJobDetails();
   const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState("compose");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
-  const [position, setPosition] = useState('Frontend Developer');
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [filteredJobs, setFilteredJobs] = useState<JobDetail[]>([]);
+  const [position, setPosition] = useState('');
   const [selectedCandidates, setSelectedCandidates] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isSending, setIsSending] = useState(false);
   
-  const loading = candidatesLoading || templatesLoading || companiesLoading;
+  const loading = candidatesLoading || templatesLoading || companiesLoading || jobsLoading;
+  
+  // Update available jobs when company changes
+  useEffect(() => {
+    if (selectedCompanyId) {
+      const companyId = parseInt(selectedCompanyId);
+      const jobs = jobDetails.filter(job => job.companyId === companyId);
+      setFilteredJobs(jobs);
+      
+      // Reset position if not valid for this company
+      const isCurrentPositionValid = jobs.some(job => job.title === position);
+      if (!isCurrentPositionValid) {
+        setPosition('');
+      }
+    } else {
+      setFilteredJobs(jobDetails);
+      setPosition('');
+    }
+  }, [selectedCompanyId, jobDetails]);
   
   // Filter candidates based on search query and status
   const filteredCandidates = candidates.filter(candidate => {
@@ -109,6 +138,10 @@ const EmailSender = () => {
     } else {
       setSelectedCandidates(filteredCandidates.map(c => c.id));
     }
+  };
+  
+  const handleCompanyChange = (companyId: string) => {
+    setSelectedCompanyId(companyId);
   };
   
   // Update template preview when selected candidate changes and a template is selected
@@ -368,22 +401,45 @@ const EmailSender = () => {
                         </Select>
                       </div>
                       
+                      {/* Company Filter */}
+                      <div className="space-y-2">
+                        <Label htmlFor="company">Công ty</Label>
+                        <Select 
+                          value={selectedCompanyId} 
+                          onValueChange={handleCompanyChange}
+                        >
+                          <SelectTrigger>
+                            <Building className="h-4 w-4 mr-2" />
+                            <SelectValue placeholder="Chọn công ty" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Tất cả công ty</SelectItem>
+                            {companies.map((company) => (
+                              <SelectItem key={company.id} value={company.id.toString()}>
+                                {company.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
                       <div className="space-y-2">
                         <Label htmlFor="position">Vị trí ứng tuyển</Label>
                         <Select 
                           value={position} 
                           onValueChange={handlePositionChange}
+                          disabled={filteredJobs.length === 0}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Chọn vị trí" />
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            <SelectValue placeholder={filteredJobs.length === 0 ? "Chọn công ty trước" : "Chọn vị trí"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Frontend Developer">Frontend Developer</SelectItem>
-                            <SelectItem value="Backend Developer">Backend Developer</SelectItem>
-                            <SelectItem value="Full-stack Developer">Full-stack Developer</SelectItem>
-                            <SelectItem value="UI/UX Designer">UI/UX Designer</SelectItem>
-                            <SelectItem value="Project Manager">Project Manager</SelectItem>
-                            <SelectItem value="Business Analyst">Business Analyst</SelectItem>
+                            {filteredJobs.map(job => (
+                              <SelectItem key={job.id} value={job.title}>
+                                {job.title}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>

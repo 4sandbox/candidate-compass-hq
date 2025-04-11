@@ -50,9 +50,16 @@ export const EmailTemplateForm: React.FC<EmailTemplateFormProps> = ({
     onSave(values);
   };
 
+  // Ensure the form doesn't cause navigation issues by preventing default on clicks
+  const handleCancelClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCancel();
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" onClick={(e) => e.stopPropagation()}>
         <FormField
           control={form.control}
           name="name"
@@ -106,7 +113,7 @@ export const EmailTemplateForm: React.FC<EmailTemplateFormProps> = ({
           <Button 
             type="button" 
             variant="outline" 
-            onClick={onCancel}
+            onClick={handleCancelClick}
           >
             <X className="h-4 w-4 mr-2" />
             Hủy bỏ

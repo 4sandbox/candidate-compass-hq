@@ -25,14 +25,20 @@ export const useEmailTemplates = () => {
     fetchTemplates();
   }, []);
 
-  const renderTemplate = (template: EmailTemplate, candidateName: string, position: string): { subject: string, body: string } => {
-    const subject = template.subject
-      .replace('{Tên}', candidateName)
-      .replace('{Vị trí ứng tuyển}', position);
-      
-    const body = template.body
+  const renderTemplate = (template: EmailTemplate, candidateName: string, position: string, companyName?: string): { subject: string, body: string } => {
+    let subject = template.subject
       .replace(/{Tên}/g, candidateName)
       .replace(/{Vị trí ứng tuyển}/g, position);
+      
+    let body = template.body
+      .replace(/{Tên}/g, candidateName)
+      .replace(/{Vị trí ứng tuyển}/g, position);
+      
+    // If company name is provided, replace that variable too
+    if (companyName) {
+      subject = subject.replace(/{Công ty}/g, companyName);
+      body = body.replace(/{Công ty}/g, companyName);
+    }
       
     return { subject, body };
   };
