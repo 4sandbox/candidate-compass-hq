@@ -1,18 +1,17 @@
+
 import React, { useState } from 'react';
-import { Building, Plus, Trash2, Edit, MoreVertical } from 'lucide-react';
+import { Building, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Textarea } from '@/components/ui/textarea';
-import { format } from 'date-fns';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import EmptyState from '@/components/EmptyState';
+import CompanyGrid from '@/components/company/CompanyGrid';
+import CreateCompanyDialog from '@/components/company/CreateCompanyDialog';
+import EditCompanyDialog from '@/components/company/EditCompanyDialog';
+import DeleteCompanyDialog from '@/components/company/DeleteCompanyDialog';
+import { Company } from '@/data/mockCompanies';
 
 const CompanyManagement = () => {
   const { companies, loading, addCompany, updateCompany, deleteCompany } = useCompanies();
@@ -20,7 +19,7 @@ const CompanyManagement = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [currentCompany, setCurrentCompany] = useState<{ id: number; name: string; industry: string; website?: string; description?: string; address?: string; } | null>(null);
+  const [currentCompany, setCurrentCompany] = useState<Partial<Company> & { id?: number } | null>(null);
   const [newCompany, setNewCompany] = useState({ name: '', industry: '', website: '', description: '', address: '' });
 
   const handleCreateCompany = async (e: React.FormEvent) => {
@@ -44,7 +43,7 @@ const CompanyManagement = () => {
 
   const handleEditCompany = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentCompany) return;
+    if (!currentCompany?.id) return;
     
     try {
       await updateCompany(currentCompany.id, currentCompany);
@@ -63,7 +62,7 @@ const CompanyManagement = () => {
   };
 
   const handleDeleteCompany = async () => {
-    if (!currentCompany) return;
+    if (!currentCompany?.id) return;
     
     try {
       await deleteCompany(currentCompany.id);
@@ -102,6 +101,30 @@ const CompanyManagement = () => {
     }, 100);
   };
 
+  const handleEditButtonClick = (company: Company) => {
+    setCurrentCompany({
+      id: company.id, 
+      name: company.name,
+      industry: company.industry,
+      website: company.website,
+      description: company.description,
+      address: company.address
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteButtonClick = (company: Company) => {
+    setCurrentCompany({
+      id: company.id, 
+      name: company.name,
+      industry: company.industry,
+      website: company.website,
+      description: company.description,
+      address: company.address
+    });
+    setIsDeleteDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -135,244 +158,35 @@ const CompanyManagement = () => {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {companies.map((company) => (
-            <Card key={company.id}>
-              <CardHeader className="pb-3 flex flex-row justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{company.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{company.industry}</p>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Mở menu</span>
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                      onClick={() => {
-                        setCurrentCompany({
-                          id: company.id, 
-                          name: company.name,
-                          industry: company.industry,
-                          website: company.website,
-                          description: company.description,
-                          address: company.address
-                        });
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Chỉnh sửa</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      className="text-red-600"
-                      onClick={() => {
-                        setCurrentCompany({
-                          id: company.id, 
-                          name: company.name,
-                          industry: company.industry,
-                          website: company.website,
-                          description: company.description,
-                          address: company.address
-                        });
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Xóa</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent>
-                {company.website && (
-                  <p className="text-sm mb-2">
-                    <span className="font-medium">Website:</span>{" "}
-                    <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {company.website}
-                    </a>
-                  </p>
-                )}
-                {company.address && (
-                  <p className="text-sm mb-2">
-                    <span className="font-medium">Địa chỉ:</span> {company.address}
-                  </p>
-                )}
-                {company.description && (
-                  <p className="text-sm mb-2 line-clamp-3">
-                    <span className="font-medium">Mô tả:</span> {company.description}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground mt-4">
-                  Đã tạo: {format(company.createdDate, 'dd/MM/yyyy')}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <CompanyGrid 
+          companies={companies}
+          onEditClick={handleEditButtonClick}
+          onDeleteClick={handleDeleteButtonClick}
+        />
       )}
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Thêm công ty mới</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin công ty của bạn.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateCompany}>
-            <div className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label htmlFor="name">Tên công ty</Label>
-                <Input 
-                  id="name" 
-                  placeholder="Nhập tên công ty" 
-                  value={newCompany.name}
-                  onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="industry">Ngành nghề</Label>
-                <Input 
-                  id="industry" 
-                  placeholder="Ví dụ: Công nghệ, Tài chính..." 
-                  value={newCompany.industry}
-                  onChange={(e) => setNewCompany({ ...newCompany, industry: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website (không bắt buộc)</Label>
-                <Input 
-                  id="website" 
-                  placeholder="https://example.com" 
-                  value={newCompany.website}
-                  onChange={(e) => setNewCompany({ ...newCompany, website: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Địa chỉ (không bắt buộc)</Label>
-                <Input 
-                  id="address" 
-                  placeholder="Địa chỉ công ty" 
-                  value={newCompany.address}
-                  onChange={(e) => setNewCompany({ ...newCompany, address: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Mô tả (không bắt buộc)</Label>
-                <Textarea 
-                  id="description" 
-                  placeholder="Mô tả về công ty" 
-                  value={newCompany.description}
-                  onChange={(e) => setNewCompany({ ...newCompany, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
-            </div>
-            <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
-                Hủy
-              </Button>
-              <Button type="submit">Tạo công ty</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <CreateCompanyDialog 
+        open={isCreateDialogOpen}
+        onOpenChange={handleCreateDialogClose}
+        company={newCompany}
+        onChange={(field, value) => setNewCompany(prev => ({ ...prev, [field]: value }))}
+        onSubmit={handleCreateCompany}
+      />
 
-      <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chỉnh sửa công ty</DialogTitle>
-            <DialogDescription>
-              Cập nhật thông tin của công ty.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleEditCompany}>
-            <div className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Tên công ty</Label>
-                <Input 
-                  id="edit-name" 
-                  placeholder="Nhập tên công ty" 
-                  value={currentCompany?.name || ''}
-                  onChange={(e) => setCurrentCompany(curr => curr ? { ...curr, name: e.target.value } : null)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-industry">Ngành nghề</Label>
-                <Input 
-                  id="edit-industry" 
-                  placeholder="Ví dụ: Công nghệ, Tài chính..." 
-                  value={currentCompany?.industry || ''}
-                  onChange={(e) => setCurrentCompany(curr => curr ? { ...curr, industry: e.target.value } : null)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-website">Website (không bắt buộc)</Label>
-                <Input 
-                  id="edit-website" 
-                  placeholder="https://example.com" 
-                  value={currentCompany?.website || ''}
-                  onChange={(e) => setCurrentCompany(curr => curr ? { ...curr, website: e.target.value } : null)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-address">Địa chỉ (không bắt buộc)</Label>
-                <Input 
-                  id="edit-address" 
-                  placeholder="Địa chỉ công ty" 
-                  value={currentCompany?.address || ''}
-                  onChange={(e) => setCurrentCompany(curr => curr ? { ...curr, address: e.target.value } : null)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Mô tả (không bắt buộc)</Label>
-                <Textarea 
-                  id="edit-description" 
-                  placeholder="Mô tả về công ty" 
-                  value={currentCompany?.description || ''}
-                  onChange={(e) => setCurrentCompany(curr => curr ? { ...curr, description: e.target.value } : null)}
-                  rows={3}
-                />
-              </div>
-            </div>
-            <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={handleEditDialogClose}>
-                Hủy
-              </Button>
-              <Button type="submit">Lưu thay đổi</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <EditCompanyDialog 
+        open={isEditDialogOpen}
+        onOpenChange={handleEditDialogClose}
+        company={currentCompany}
+        onChange={(field, value) => setCurrentCompany(curr => curr ? { ...curr, [field]: value } : null)}
+        onSubmit={handleEditCompany}
+      />
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Xóa công ty</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa công ty "{currentCompany?.name}"?
-              Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={handleDeleteDialogClose}>
-              Hủy
-            </Button>
-            <Button type="button" variant="destructive" onClick={handleDeleteCompany}>
-              Xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteCompanyDialog 
+        open={isDeleteDialogOpen}
+        onOpenChange={handleDeleteDialogClose}
+        companyName={currentCompany?.name || ''}
+        onConfirmDelete={handleDeleteCompany}
+      />
     </Layout>
   );
 };
