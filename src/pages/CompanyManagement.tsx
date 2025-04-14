@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Building, Plus, Trash2, Edit, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -82,20 +81,25 @@ const CompanyManagement = () => {
     }
   };
 
-  // Add handlers to reset state when dialogs close
   const handleCreateDialogClose = () => {
     setIsCreateDialogOpen(false);
-    setNewCompany({ name: '', industry: '', website: '', description: '', address: '' });
+    setTimeout(() => {
+      setNewCompany({ name: '', industry: '', website: '', description: '', address: '' });
+    }, 100);
   };
 
   const handleEditDialogClose = () => {
     setIsEditDialogOpen(false);
-    setCurrentCompany(null);
+    setTimeout(() => {
+      setCurrentCompany(null);
+    }, 100);
   };
 
   const handleDeleteDialogClose = () => {
     setIsDeleteDialogOpen(false);
-    setCurrentCompany(null);
+    setTimeout(() => {
+      setCurrentCompany(null);
+    }, 100);
   };
 
   if (loading) {
@@ -212,7 +216,6 @@ const CompanyManagement = () => {
         </div>
       )}
 
-      {/* Create Company Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose}>
         <DialogContent>
           <DialogHeader>
@@ -282,7 +285,6 @@ const CompanyManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Company Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogClose}>
         <DialogContent>
           <DialogHeader>
@@ -352,7 +354,6 @@ const CompanyManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Company Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
         <DialogContent>
           <DialogHeader>
