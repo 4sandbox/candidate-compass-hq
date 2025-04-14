@@ -107,6 +107,12 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({
     });
   };
 
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    // Ensure we reset the selected template when dialog is closed
+    setSelectedTemplate(null);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -182,7 +188,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({
         </div>
       </ScrollArea>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
@@ -197,7 +203,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({
           <EmailTemplateForm
             initialData={selectedTemplate || undefined}
             onSave={handleSaveTemplate}
-            onCancel={() => setIsDialogOpen(false)}
+            onCancel={handleDialogClose}
           />
         </DialogContent>
       </Dialog>
