@@ -82,6 +82,22 @@ const Dashboard = () => {
     }
   };
 
+  // Add handlers to reset state when dialogs close
+  const handleCreateDialogClose = () => {
+    setIsCreateDialogOpen(false);
+    setNewProject({ name: '', description: '', position: '' });
+  };
+
+  const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
+    setCurrentProject(null);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    setCurrentProject(null);
+  };
+
   const renderStatCards = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       <Card>
@@ -255,7 +271,7 @@ const Dashboard = () => {
       )}
 
       {/* Create Project Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Tạo dự án mới</DialogTitle>
@@ -297,7 +313,7 @@ const Dashboard = () => {
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
                 Hủy
               </Button>
               <Button type="submit">Tạo dự án</Button>
@@ -307,7 +323,7 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Edit Project Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Chỉnh sửa dự án</DialogTitle>
@@ -349,7 +365,7 @@ const Dashboard = () => {
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleEditDialogClose}>
                 Hủy
               </Button>
               <Button type="submit">Lưu thay đổi</Button>
@@ -359,7 +375,7 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Delete Project Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa dự án</DialogTitle>
@@ -369,7 +385,7 @@ const Dashboard = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button type="button" variant="outline" onClick={handleDeleteDialogClose}>
               Hủy
             </Button>
             <Button type="button" variant="destructive" onClick={handleDeleteProject}>

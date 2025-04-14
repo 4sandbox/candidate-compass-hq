@@ -146,6 +146,34 @@ const JobDetailManagement = () => {
     }
   };
 
+  // Add handlers to reset state when dialogs close
+  const handleCreateDialogClose = () => {
+    setIsCreateDialogOpen(false);
+    setNewJob({
+      title: '',
+      companyId: '',
+      projectId: '',
+      location: '',
+      jobType: 'Full-time',
+      salary: '',
+      requirements: '',
+      description: '',
+      responsibilities: '',
+      deadline: '',
+      status: 'Đang tuyển'
+    });
+  };
+
+  const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
+    setCurrentJob(null);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    setCurrentJob(null);
+  };
+
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'Đang tuyển':
@@ -285,7 +313,7 @@ const JobDetailManagement = () => {
       )}
 
       {/* Create Job Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Thêm tin tuyển dụng mới</DialogTitle>
@@ -447,7 +475,7 @@ Hợp tác với team backend"
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
                 Hủy
               </Button>
               <Button type="submit">Tạo tin tuyển dụng</Button>
@@ -457,7 +485,7 @@ Hợp tác với team backend"
       </Dialog>
 
       {/* Edit Job Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa tin tuyển dụng</DialogTitle>
@@ -608,7 +636,7 @@ Hợp tác với team backend"
                 </div>
               </div>
               <DialogFooter className="mt-4">
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={handleEditDialogClose}>
                   Hủy
                 </Button>
                 <Button type="submit">Lưu thay đổi</Button>
@@ -619,7 +647,7 @@ Hợp tác với team backend"
       </Dialog>
 
       {/* Delete Job Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa tin tuyển dụng</DialogTitle>
@@ -629,7 +657,7 @@ Hợp tác với team backend"
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button type="button" variant="outline" onClick={handleDeleteDialogClose}>
               Hủy
             </Button>
             <Button type="button" variant="destructive" onClick={handleDeleteJob}>

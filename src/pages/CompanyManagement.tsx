@@ -82,6 +82,22 @@ const CompanyManagement = () => {
     }
   };
 
+  // Add handlers to reset state when dialogs close
+  const handleCreateDialogClose = () => {
+    setIsCreateDialogOpen(false);
+    setNewCompany({ name: '', industry: '', website: '', description: '', address: '' });
+  };
+
+  const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
+    setCurrentCompany(null);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    setCurrentCompany(null);
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -197,7 +213,7 @@ const CompanyManagement = () => {
       )}
 
       {/* Create Company Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Thêm công ty mới</DialogTitle>
@@ -257,7 +273,7 @@ const CompanyManagement = () => {
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
                 Hủy
               </Button>
               <Button type="submit">Tạo công ty</Button>
@@ -267,7 +283,7 @@ const CompanyManagement = () => {
       </Dialog>
 
       {/* Edit Company Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog open={isEditDialogOpen} onOpenChange={handleEditDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Chỉnh sửa công ty</DialogTitle>
@@ -327,7 +343,7 @@ const CompanyManagement = () => {
               </div>
             </div>
             <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleEditDialogClose}>
                 Hủy
               </Button>
               <Button type="submit">Lưu thay đổi</Button>
@@ -337,7 +353,7 @@ const CompanyManagement = () => {
       </Dialog>
 
       {/* Delete Company Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogClose}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xóa công ty</DialogTitle>
@@ -347,7 +363,7 @@ const CompanyManagement = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button type="button" variant="outline" onClick={handleDeleteDialogClose}>
               Hủy
             </Button>
             <Button type="button" variant="destructive" onClick={handleDeleteCompany}>
